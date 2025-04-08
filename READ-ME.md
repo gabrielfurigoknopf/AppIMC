@@ -24,3 +24,7 @@ Criar um novo aplicativo para realizar testes de IMC. Basear-se no aplicativo we
 * Usar coleções (incluir, alterar excluir, listar)
 * Ao listar, mostrar estatísticas: quantidade total de testes, quantidades de testes por categoria e percentual (Saudáveis, Obesos, …)
 * Introdução à programação visual com orientação a objetos - desktop. 
+
+# Parte 4:
+* Implementar persistência de objetos do exercício de IMC Desktop.
+* Armazenar os testes em uma tabela.
