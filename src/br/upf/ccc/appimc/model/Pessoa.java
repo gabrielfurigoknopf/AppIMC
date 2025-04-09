@@ -4,38 +4,40 @@
  */
 package br.upf.ccc.appimc.model;
 
+import java.io.Serializable;
+
 /**
  * Classes
  * @author gabriel
  */
-public class Pessoa {
+public class Pessoa implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String cpf;
     private String nome;
     private double peso;
-    private double altura;  
-    
+    private double altura;
+
     public Pessoa(String cpf, String nome, double peso, double altura) {
         this.cpf = cpf;
         this.nome = nome;
         this.peso = peso;
         this.altura = altura;
     }
-    
-    public String getCpf(){
+
+    public String getCpf() {
         return cpf;
     }
-    
-    public String getNome(){
+
+    public String getNome() {
         return nome;
     }
-    
-    public double getPeso(){
+
+    public double getPeso() {
         return peso;
     }
-    
-    public double getAltura(){
+
+    public double getAltura() {
         return altura;
     }
 }
-
-

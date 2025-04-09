@@ -1,6 +1,7 @@
 package br.upf.ccc.appimc.view;
 
 import br.upf.ccc.appimc.model.Pessoa;
+import br.upf.ccc.appimc.model.PessoaDAO;
 import br.upf.ccc.appimc.utilities.IMCCalculadora;
 import javax.swing.*;
 import java.awt.*;
@@ -8,11 +9,11 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
 public class AppIMCUI extends JFrame {
-    private final ArrayList<Pessoa> testes;  // armazena os testes realizados
-    private JTextArea resultArea; // área para mostrar os resultados
+    private final ArrayList<Pessoa> testes;
+    private JTextArea resultArea;
 
     public AppIMCUI() {
-        testes = new ArrayList<>();
+        testes = PessoaDAO.carregar(); // Carrega os dados do arquivo
         initialize();
     }
 
@@ -26,7 +27,6 @@ public class AppIMCUI extends JFrame {
         JPanel buttonPanel = new JPanel();
         getContentPane().add(buttonPanel, BorderLayout.NORTH);
 
-        // Botões de funcionalidade
         JButton btnIncluir = new JButton("Incluir Teste");
         buttonPanel.add(btnIncluir);
         JButton btnListar = new JButton("Listar Testes");
@@ -54,8 +54,7 @@ public class AppIMCUI extends JFrame {
         JTextField pesoField = new JTextField();
         JTextField alturaField = new JTextField();
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 2));
+        JPanel panel = new JPanel(new GridLayout(4, 2));
         panel.add(new JLabel("CPF:"));
         panel.add(cpfField);
         panel.add(new JLabel("Nome:"));
@@ -67,17 +66,22 @@ public class AppIMCUI extends JFrame {
 
         int option = JOptionPane.showConfirmDialog(this, panel, "Incluir Teste", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
-            String cpf = cpfField.getText();
-            String nome = nomeField.getText();
-            double peso = Double.parseDouble(pesoField.getText());
-            double altura = Double.parseDouble(alturaField.getText());
+            try {
+                String cpf = cpfField.getText();
+                String nome = nomeField.getText();
+                double peso = Double.parseDouble(pesoField.getText());
+                double altura = Double.parseDouble(alturaField.getText());
 
-            if (peso > 0 && altura > 0) {
-                Pessoa pessoa = new Pessoa(cpf, nome, peso, altura);
-                testes.add(pessoa);
-                JOptionPane.showMessageDialog(this, "Teste incluído com sucesso!");
-            } else {
-                JOptionPane.showMessageDialog(this, "Peso e altura devem ser positivos.");
+                if (peso > 0 && altura > 0) {
+                    Pessoa pessoa = new Pessoa(cpf, nome, peso, altura);
+                    testes.add(pessoa);
+                    PessoaDAO.salvar(testes); // Salvar após incluir
+                    JOptionPane.showMessageDialog(this, "Teste incluído com sucesso!");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Peso e altura devem ser positivos.");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Valores inválidos.");
             }
         }
     }
@@ -94,8 +98,13 @@ public class AppIMCUI extends JFrame {
 
     private void excluirTeste() {
         String cpfExcluir = JOptionPane.showInputDialog(this, "Digite o CPF do teste a excluir:");
-        testes.removeIf(p -> p.getCpf().equals(cpfExcluir));
-        JOptionPane.showMessageDialog(this, "Teste removido, se existia.");
+        boolean removido = testes.removeIf(p -> p.getCpf().equals(cpfExcluir));
+        if (removido) {
+            PessoaDAO.salvar(testes); // Salvar após excluir
+            JOptionPane.showMessageDialog(this, "Teste removido com sucesso.");
+        } else {
+            JOptionPane.showMessageDialog(this, "CPF não encontrado.");
+        }
     }
 
     private void exibirEstatisticas() {
@@ -115,7 +124,11 @@ public class AppIMCUI extends JFrame {
             else categorias[5]++;
         }
 
-        String[] nomesCategorias = {"Magreza", "Normal", "Sobrepeso", "Obesidade Grau I", "Obesidade Grau II", "Obesidade Grau III"};
+        String[] nomesCategorias = {
+            "Magreza", "Normal", "Sobrepeso",
+            "Obesidade Grau I", "Obesidade Grau II", "Obesidade Grau III"
+        };
+
         int total = testes.size();
         StringBuilder stats = new StringBuilder();
         stats.append(String.format("Total: %d testes realizados.\n", total));
